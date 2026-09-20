@@ -1,37 +1,38 @@
 import type { AccentPalette } from '../types'
 
 /**
- * Official AWS brand palette extracted from "Palette (CYMK).svg"
- * RGB values converted from the CSS fills in that file.
+ * Complete AWS brand palette from "Palette (CYMK).svg"
  *
- * #f4991a  – Amazon Orange  (cls-6)   CMYK 0,37,89,4   Pantone 1375 C
- * #5bade1  – Amazon Blue    (cls-5)   CMYK 60,23,0,12  Pantone 2915 C
- * #171e27  – Squid Ink      (cls-1)   CMYK 41,23,0,85  Pantone 7547 C
- * #c16da9  – AWS Pink       (cls-9)   CMYK 0,44,12,24  Pantone 2060 C
- * #5db676  – AWS Green      (cls-2)   CMYK 49,0,35,29  Pantone 6170 C
- * #7f62a7  – AWS Purple     (cls-10)  CMYK 24,41,0,35  Pantone 7676 C
- * #666972  – Cool Gray      (cls-11)  CMYK 11,8,0,56   Cool Gray 10 C
+ * Row 1:  Amazon Orange #f4991a · Amazon Blue #5bade1 · Squid Ink #171e27
+ * Row 2:  AWS Pink      #c16da9 · AWS Green   #5db676 · AWS Purple #7f62a7
+ * Row 3:  Cool Gray     #666972 · White       #ffffff · Black      #1d1d1b
  */
-
 export const ACCENT_PALETTES: AccentPalette[] = [
-  { id: 'orange', label: 'Amazon Orange', hex: '#f4991a', tailwind: 'bg-orange-400' },
-  { id: 'blue',   label: 'Amazon Blue',   hex: '#5bade1', tailwind: 'bg-sky-400'    },
-  { id: 'green',  label: 'AWS Green',     hex: '#5db676', tailwind: 'bg-green-500'  },
-  { id: 'pink',   label: 'AWS Pink',      hex: '#c16da9', tailwind: 'bg-pink-400'   },
-  { id: 'purple', label: 'AWS Purple',    hex: '#7f62a7', tailwind: 'bg-purple-500' },
+  // Row 1
+  { id: 'orange', label: 'Amazon Orange', hex: '#f4991a' },
+  { id: 'blue',   label: 'Amazon Blue',   hex: '#5bade1' },
+  { id: 'squid',  label: 'Squid Ink',     hex: '#171e27' },
+  // Row 2
+  { id: 'pink',   label: 'AWS Pink',      hex: '#c16da9' },
+  { id: 'green',  label: 'AWS Green',     hex: '#5db676' },
+  { id: 'purple', label: 'AWS Purple',    hex: '#7f62a7' },
+  // Row 3
+  { id: 'gray',   label: 'Cool Gray',     hex: '#666972' },
+  { id: 'white',  label: 'White',         hex: '#ffffff' },
+  { id: 'black',  label: 'Black',         hex: '#1d1d1b' },
 ]
 
-/** AWS Squid Ink – the official dark background color */
+/** AWS Squid Ink – official dark background */
 export const AWS_SQUID_INK = '#171e27'
 
 export const THEME_BACKGROUNDS: Record<'dark' | 'light', string> = {
-  dark:  AWS_SQUID_INK,   // official AWS dark bg
+  dark:  AWS_SQUID_INK,
   light: '#f8fafc',
 }
 
 export const THEME_TEXT: Record<'dark' | 'light', { primary: string; secondary: string }> = {
-  dark:  { primary: '#ffffff',  secondary: '#aab4c4' },
-  light: { primary: '#0f172a',  secondary: '#475569' },
+  dark:  { primary: '#ffffff', secondary: '#aab4c4' },
+  light: { primary: '#0f172a', secondary: '#475569' },
 }
 
 export function getAccentHex(id: string): string {

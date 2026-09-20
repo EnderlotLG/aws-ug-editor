@@ -14,13 +14,15 @@ export interface FormatPreset {
 
 export type Theme = 'dark' | 'light'
 
-export type AccentColor = 'orange' | 'green' | 'blue' | 'pink' | 'purple'
+export type AccentColor =
+  | 'orange' | 'blue' | 'squid'
+  | 'pink'   | 'green' | 'purple'
+  | 'gray'   | 'white' | 'black'
 
 export interface AccentPalette {
   id: AccentColor
   label: string
   hex: string
-  tailwind: string
 }
 
 // ─── Layers ──────────────────────────────────────────────────────────────────
