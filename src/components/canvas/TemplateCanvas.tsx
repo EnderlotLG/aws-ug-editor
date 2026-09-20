@@ -183,7 +183,7 @@ export const TemplateCanvas = forwardRef<HTMLDivElement, Record<string, never>>(
               top:      Math.round(height * 0.03),
               left:     Math.round(width  * 0.04),
             }}>
-              <AwsSmileLogo size={logoW} smileColor={accentHex} />
+              <AwsSmileLogo width={logoW} variant={theme === 'dark' ? 'white' : 'color'} />
             </div>
           )}
 
