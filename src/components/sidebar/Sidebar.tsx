@@ -1,10 +1,10 @@
-import { ThemeSelector }        from './ThemeSelector'
-import { AccentColorSelector }  from './AccentColorSelector'
-import { LogoUploader }         from './LogoUploader'
-import { LayersPanel }          from './LayersPanel'
-import { TextFields }           from './TextFields'
+import { ThemeSelector }          from './ThemeSelector'
+import { AccentColorSelector }    from './AccentColorSelector'
+import { DesignPatternSelector }  from './DesignPatternSelector'
+import { LogoUploader }           from './LogoUploader'
+import { LayersPanel }            from './LayersPanel'
+import { TextFields }             from './TextFields'
 
-/** Thin divider between sidebar sections */
 function Divider() {
   return <hr className="border-slate-800" />
 }
@@ -13,10 +13,10 @@ export function Sidebar() {
   return (
     <aside
       className="flex flex-col gap-5 overflow-y-auto bg-slate-950 border-r border-slate-800 px-4 py-5"
-      style={{ width: 260, minWidth: 260 }}
+      style={{ width: 264, minWidth: 264 }}
       aria-label="Editor controls"
     >
-      {/* Logo / branding header */}
+      {/* Header */}
       <div className="flex items-center gap-2 pb-1">
         <span className="text-xs font-bold tracking-widest text-slate-400 uppercase">
           UG Editor
@@ -31,6 +31,10 @@ export function Sidebar() {
 
       <Divider />
       <AccentColorSelector />
+
+      {/* ── Design randomizer ── */}
+      <Divider />
+      <DesignPatternSelector />
 
       <Divider />
       <LogoUploader />

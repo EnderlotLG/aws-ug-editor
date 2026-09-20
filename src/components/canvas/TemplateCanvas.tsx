@@ -3,230 +3,221 @@ import { useEditorStore } from '../../store/useEditorStore'
 import { getPreset } from '../../config/presets'
 import { getBlocks } from '../../config/blocks'
 import { getAccentHex, THEME_BACKGROUNDS, THEME_TEXT } from '../../config/colors'
-import { GridBackground } from './GridBackground'
 import { AwsSmileLogo } from './AwsSmileLogo'
 
-const MAX_PREVIEW_SIZE = 540
+/** Maximum px the preview wrapper may occupy on screen */
+const MAX_PREVIEW = 520
 
+// ── Inline SVG grid background ────────────────────────────────────────────────
+function GridBg({
+  width, height, cell, dark,
+}: { width: number; height: number; cell: number; dark: boolean }) {
+  const stroke = dark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.08)'
+  const pid = 'ug-grid'
+  return (
+    <svg
+      width={width} height={height}
+      style={{ position: 'absolute', inset: 0, pointerEvents: 'none' }}
+      aria-hidden="true"
+    >
+      <defs>
+        <pattern id={pid} width={cell} height={cell} patternUnits="userSpaceOnUse">
+          {/* vertical line on right edge of cell */}
+          <line x1={cell} y1={0} x2={cell} y2={cell}
+            stroke={stroke} strokeWidth={1} />
+          {/* horizontal line on bottom edge of cell */}
+          <line x1={0} y1={cell} x2={cell} y2={cell}
+            stroke={stroke} strokeWidth={1} />
+        </pattern>
+      </defs>
+      <rect width={width} height={height} fill={`url(#${pid})`} />
+    </svg>
+  )
+}
+
+// ── Chip icon (inline SVG, no external resource) ──────────────────────────────
+function ChipIcon({ size, color }: { size: number; color: string }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <rect x="7" y="7" width="10" height="10" rx="1.5"
+        stroke={color} strokeWidth="1.8" />
+      {[9, 12, 15].map(v => (
+        <g key={v}>
+          <line x1={v} y1={7}  x2={v} y2={4}  stroke={color} strokeWidth="1.8" strokeLinecap="round" />
+          <line x1={v} y1={17} x2={v} y2={20} stroke={color} strokeWidth="1.8" strokeLinecap="round" />
+        </g>
+      ))}
+      {[9, 12, 15].map(v => (
+        <g key={v}>
+          <line x1={7}  y1={v} x2={4}  y2={v} stroke={color} strokeWidth="1.8" strokeLinecap="round" />
+          <line x1={17} y1={v} x2={20} y2={v} stroke={color} strokeWidth="1.8" strokeLinecap="round" />
+        </g>
+      ))}
+    </svg>
+  )
+}
+
+// ── Main canvas component ─────────────────────────────────────────────────────
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type
 export const TemplateCanvas = forwardRef<HTMLDivElement, object>(
   function TemplateCanvas(_props, ref) {
     const {
-      activePresetId,
-      theme,
-      accentColor,
-      layers,
-      headline,
-      speakerName,
-      ugName,
-      customLogoBase64,
+      activePresetId, theme, accentColor,
+      layers, headline, speakerName, ugName,
+      customLogoBase64, designPattern,
     } = useEditorStore()
 
-    const preset             = getPreset(activePresetId)
-    const { width, height }  = preset
+    const preset            = getPreset(activePresetId)
+    const { width, height } = preset
 
-    const scaleFactor = useMemo(() => {
-      const maxDim = Math.max(width, height)
-      return Math.min(1, MAX_PREVIEW_SIZE / maxDim)
-    }, [width, height])
+    // CSS scale factor for the preview wrapper
+    const scale = useMemo(
+      () => Math.min(1, MAX_PREVIEW / Math.max(width, height)),
+      [width, height],
+    )
 
-    const blocks     = useMemo(() => getBlocks(width, height), [width, height])
+    // Grid cell = 1/8 of the shorter side, min 40px
+    const cell = useMemo(
+      () => Math.max(40, Math.round(Math.min(width, height) / 8)),
+      [width, height],
+    )
+
+    const blocks     = useMemo(() => getBlocks(width, height, designPattern), [width, height, designPattern])
     const accentHex  = getAccentHex(accentColor)
-    const bgColor    = THEME_BACKGROUNDS[theme]
-    const textColors = THEME_TEXT[theme]
+    const bg         = THEME_BACKGROUNDS[theme]
+    const txt        = THEME_TEXT[theme]
+    const isDark     = theme === 'dark'
 
-    const layerOn = (id: string) =>
-      layers.find(l => l.id === id)?.isVisible ?? true
+    const layerOn = (id: string) => layers.find(l => l.id === id)?.isVisible ?? true
 
-    // Grid cell unit — 1/8 of the shorter side
-    const cell = Math.round(Math.min(width, height) / 8)
-
-    // Responsive font sizes
-    const fsHeadline = Math.round(Math.min(width, height) * 0.07)
-    const fsBody     = Math.round(Math.min(width, height) * 0.032)
-    const fsUg       = Math.round(Math.min(width, height) * 0.026)
-    const logoW      = Math.round(width * 0.12)
-
-    // Brandmark bar height
-    const brandH = Math.round(height * 0.1)
+    // Responsive sizes relative to canvas width
+    const logoW     = Math.round(width * 0.13)   // AWS logo width
+    const fsHead    = Math.round(Math.min(width, height) * 0.072)
+    const fsSub     = Math.round(Math.min(width, height) * 0.034)
+    const brandH    = Math.round(height * 0.095)  // brandmark bar height
+    const chipSize  = Math.round(brandH * 0.55)
 
     return (
-      /* Outer wrapper – CSS-scaled for preview */
-      <div
-        className="canvas-wrapper"
-        style={{ width: width * scaleFactor, height: height * scaleFactor, flexShrink: 0 }}
-      >
-        {/* Inner canvas – full resolution, scaled via CSS */}
+      /* Outer wrapper – sized to the scaled dimensions */
+      <div style={{ width: width * scale, height: height * scale, flexShrink: 0 }}>
+
+        {/* Inner div – full resolution, CSS-scaled */}
         <div
           ref={ref}
           id="template-canvas"
           style={{
-            width,
-            height,
-            position:        'relative',
-            overflow:        'hidden',
-            backgroundColor: bgColor,
+            position: 'relative',
+            overflow: 'hidden',
+            width, height,
+            backgroundColor: bg,
             transformOrigin: 'top left',
-            transform:       `scale(${scaleFactor})`,
-            fontFamily:      "'Inter', system-ui, sans-serif",
+            transform: `scale(${scale})`,
+            fontFamily: "'Inter', system-ui, sans-serif",
           }}
         >
-          {/* ── Grid ───────────────────────────────────────────────────── */}
-          <GridBackground
-            width={width}
-            height={height}
-            lineColor={theme === 'dark' ? 'rgba(255,255,255,0.07)' : 'rgba(0,0,0,0.07)'}
-            cellSize={cell}
-          />
+          {/* ── Grid ──────────────────────────────────────────────────────── */}
+          <GridBg width={width} height={height} cell={cell} dark={isDark} />
 
-          {/* ── Decorative accent blocks ────────────────────────────────── */}
+          {/* ── Accent blocks ─────────────────────────────────────────────── */}
           {layerOn('BOXES') && blocks.map(b => (
-            <div
-              key={b.id}
-              style={{
-                position:        'absolute',
-                left:            b.x,
-                top:             b.y,
-                width:           b.width,
-                height:          b.height,
-                backgroundColor: accentHex,
-              }}
-            />
+            <div key={b.id} style={{
+              position: 'absolute',
+              left: b.x, top: b.y,
+              width: b.width, height: b.height,
+              backgroundColor: accentHex,
+              opacity: b.opacity ?? 1,
+            }} />
           ))}
 
-          {/* ── Headline + body text ─────────────────────────────────────── */}
-          {layerOn('HEADLINE') && (
-            <div
-              style={{
-                position:   'absolute',
-                left:       cell * 1.5,
-                top:        height * 0.30,
-                maxWidth:   width * 0.72,
-              }}
-            >
-              <div style={{
-                color:         textColors.primary,
-                fontSize:      fsHeadline,
-                fontWeight:    900,
-                lineHeight:    1.1,
-                letterSpacing: '-0.02em',
-                marginBottom:  fsBody * 0.8,
-              }}>
-                {headline}
-              </div>
-              <div style={{
-                color:      textColors.secondary,
-                fontSize:   fsBody,
-                fontWeight: 700,
-              }}>
-                {speakerName}
-              </div>
-            </div>
-          )}
-
-          {/* ── Brandmark bar (bottom) ───────────────────────────────────── */}
-          {layerOn('BRANDMARK') && (
-            <div
-              style={{
-                position:        'absolute',
-                bottom:          0,
-                left:            cell,           // starts after left column blocks
-                right:           cell,           // leaves room before custom logo square
-                height:          brandH,
-                backgroundColor: accentHex,
-                display:         'flex',
-                alignItems:      'center',
-                justifyContent:  'center',
-                gap:             Math.round(width * 0.02),
-              }}
-            >
-              {/* Chip icon */}
-              <svg
-                width={brandH * 0.5}
-                height={brandH * 0.5}
-                viewBox="0 0 24 24"
-                fill="none"
-                aria-hidden="true"
-              >
-                <rect x="7" y="7" width="10" height="10" rx="1"
-                  stroke={bgColor} strokeWidth="1.5" fill="none" />
-                <line x1="9" y1="7" x2="9" y2="4"   stroke={bgColor} strokeWidth="1.5" strokeLinecap="round" />
-                <line x1="12" y1="7" x2="12" y2="4"  stroke={bgColor} strokeWidth="1.5" strokeLinecap="round" />
-                <line x1="15" y1="7" x2="15" y2="4"  stroke={bgColor} strokeWidth="1.5" strokeLinecap="round" />
-                <line x1="9" y1="17" x2="9" y2="20"  stroke={bgColor} strokeWidth="1.5" strokeLinecap="round" />
-                <line x1="12" y1="17" x2="12" y2="20" stroke={bgColor} strokeWidth="1.5" strokeLinecap="round" />
-                <line x1="15" y1="17" x2="15" y2="20" stroke={bgColor} strokeWidth="1.5" strokeLinecap="round" />
-                <line x1="7" y1="9" x2="4" y2="9"   stroke={bgColor} strokeWidth="1.5" strokeLinecap="round" />
-                <line x1="7" y1="12" x2="4" y2="12"  stroke={bgColor} strokeWidth="1.5" strokeLinecap="round" />
-                <line x1="7" y1="15" x2="4" y2="15"  stroke={bgColor} strokeWidth="1.5" strokeLinecap="round" />
-                <line x1="17" y1="9" x2="20" y2="9"  stroke={bgColor} strokeWidth="1.5" strokeLinecap="round" />
-                <line x1="17" y1="12" x2="20" y2="12" stroke={bgColor} strokeWidth="1.5" strokeLinecap="round" />
-                <line x1="17" y1="15" x2="20" y2="15" stroke={bgColor} strokeWidth="1.5" strokeLinecap="round" />
-              </svg>
-
-              {/* UG name */}
-              <div style={{
-                color:      bgColor,
-                fontSize:   fsUg,
-                fontWeight: 600,
-                textAlign:  'center',
-                lineHeight: 1.3,
-              }}>
-                {ugName}
-              </div>
-            </div>
-          )}
-
-          {/* ── AWS logo – top-left ──────────────────────────────────────── */}
+          {/* ── AWS logo – top-left, small and clean ──────────────────────── */}
           {layerOn('BRANDMARK') && (
             <div style={{
               position: 'absolute',
-              top:      Math.round(height * 0.03),
-              left:     Math.round(width  * 0.04),
+              top:  Math.round(height * 0.03),
+              left: Math.round(width  * 0.04),
             }}>
-              <AwsSmileLogo width={logoW} variant={theme === 'dark' ? 'white' : 'color'} />
+              <AwsSmileLogo width={logoW} variant={isDark ? 'white' : 'color'} />
             </div>
           )}
 
-          {/* ── Community logo placeholder / upload ─────────────────────── */}
-          {layerOn('BRANDMARK') && (
-            <div
-              style={{
-                position:        'absolute',
-                bottom:          0,
-                right:           0,
-                width:           cell,
-                height:          brandH,
-                backgroundColor: '#ffffff',
-                border:          '2px solid rgba(150,100,255,0.5)',
-                display:         'flex',
-                alignItems:      'center',
-                justifyContent:  'center',
-                overflow:        'hidden',
-              }}
-            >
-              {customLogoBase64 ? (
-                <img
-                  src={customLogoBase64}
-                  alt="Community logo"
-                  style={{ width: '100%', height: '100%', objectFit: 'contain' }}
-                />
-              ) : null}
+          {/* ── Headline ──────────────────────────────────────────────────── */}
+          {layerOn('HEADLINE') && (
+            <div style={{
+              position:  'absolute',
+              left:      Math.round(width * 0.08),
+              bottom:    brandH + Math.round(height * 0.18),
+              maxWidth:  Math.round(width * 0.78),
+              color:     txt.primary,
+              fontSize:  fsHead,
+              fontWeight: 900,
+              lineHeight: 1.1,
+              letterSpacing: '-0.02em',
+            }}>
+              {headline}
             </div>
           )}
 
-          {/* ── TEXT_BOX layer (body / secondary text) ─────────────────── */}
+          {/* ── Speaker / body text ───────────────────────────────────────── */}
           {layerOn('TEXT_BOX') && (
             <div style={{
               position:  'absolute',
-              left:      cell * 1.5,
-              top:       height * 0.22,
-              color:     textColors.secondary,
-              fontSize:  fsBody,
+              left:      Math.round(width * 0.08),
+              bottom:    brandH + Math.round(height * 0.10),
+              maxWidth:  Math.round(width * 0.65),
+              color:     txt.secondary,
+              fontSize:  fsSub,
               fontWeight: 600,
-              opacity:   0.7,
             }}>
-              {/* Extra body slot – left empty by default, user fills via editor */}
+              {speakerName}
+            </div>
+          )}
+
+          {/* ── Brandmark bar – bottom full width ─────────────────────────── */}
+          {layerOn('BRANDMARK') && (
+            <div style={{
+              position:        'absolute',
+              bottom:          0,
+              left:            0,
+              right:           0,
+              height:          brandH,
+              backgroundColor: accentHex,
+              display:         'flex',
+              alignItems:      'center',
+              paddingLeft:     Math.round(width * 0.04),
+              paddingRight:    Math.round(width * 0.04),
+              gap:             Math.round(width * 0.02),
+              overflow:        'hidden',
+            }}>
+              {/* Chip icon */}
+              <ChipIcon size={chipSize} color={bg} />
+
+              {/* UG name – takes remaining space, truncated */}
+              <span style={{
+                color:     bg,
+                fontSize:  Math.round(brandH * 0.32),
+                fontWeight: 700,
+                lineHeight: 1.25,
+                overflow:  'hidden',
+                textOverflow: 'ellipsis',
+                whiteSpace: 'nowrap',
+                flex: 1,
+              }}>
+                {ugName}
+              </span>
+
+              {/* Custom community logo – only shown when uploaded */}
+              {customLogoBase64 && (
+                <img
+                  src={customLogoBase64}
+                  alt="Community logo"
+                  style={{
+                    width:     Math.round(brandH * 0.85),
+                    height:    Math.round(brandH * 0.85),
+                    objectFit: 'contain',
+                    flexShrink: 0,
+                  }}
+                />
+              )}
             </div>
           )}
         </div>

@@ -37,31 +37,30 @@ export interface Layer {
 
 export interface BlockDef {
   id: string
-  x: number      // px from left
-  y: number      // px from top
+  x: number
+  y: number
   width: number
   height: number
-  opacity?: number   // 0–1, default 1
-  radius?: number    // border-radius px
+  opacity?: number
+  radius?: number
 }
+
+// ─── Design pattern ───────────────────────────────────────────────────────────
+
+export type DesignPattern = 'staircase' | 'checkerboard' | 'corner-L' | 'diagonal' | 'scattered'
 
 // ─── Global editor state ─────────────────────────────────────────────────────
 
 export interface EditorState {
-  // Format
   activePresetId: string
-  // Theme
   theme: Theme
-  // Accent color
   accentColor: AccentColor
-  // Layers
   layers: Layer[]
-  // Text fields
   headline: string
   speakerName: string
   ugName: string
-  // Custom logo (Base64 data URL or null)
   customLogoBase64: string | null
+  designPattern: DesignPattern
 
   // Actions
   setPreset: (id: string) => void
@@ -72,4 +71,6 @@ export interface EditorState {
   setSpeakerName: (v: string) => void
   setUgName: (v: string) => void
   setCustomLogo: (base64: string | null) => void
+  setDesignPattern: (pattern: DesignPattern) => void
+  randomizePattern: () => void
 }
