@@ -1,26 +1,34 @@
 import type { FormatPreset, Platform } from '../types'
 
 export const PRESETS: FormatPreset[] = [
-  // Instagram
-  { id: 'ig-post',    label: 'Post 1080×1080',    platform: 'Instagram', width: 1080, height: 1080 },
-  { id: 'ig-story',   label: 'Story 1080×1920',   platform: 'Instagram', width: 1080, height: 1920 },
-  { id: 'ig-reel',    label: 'Reel 1080×1920',    platform: 'Instagram', width: 1080, height: 1920 },
-  // Facebook
-  { id: 'fb-post',    label: 'Post 1200×630',     platform: 'Facebook',  width: 1200, height: 630  },
-  { id: 'fb-cover',   label: 'Cover 820×312',     platform: 'Facebook',  width: 820,  height: 312  },
-  { id: 'fb-story',   label: 'Story 1080×1920',   platform: 'Facebook',  width: 1080, height: 1920 },
-  // LinkedIn
-  { id: 'li-post',    label: 'Post 1200×627',     platform: 'LinkedIn',  width: 1200, height: 627  },
-  { id: 'li-banner',  label: 'Banner 1584×396',   platform: 'LinkedIn',  width: 1584, height: 396  },
-  // X (Twitter)
-  { id: 'x-post',     label: 'Post 1600×900',     platform: 'X',         width: 1600, height: 900  },
-  { id: 'x-header',   label: 'Header 1500×500',   platform: 'X',         width: 1500, height: 500  },
-  // Web
-  { id: 'web-banner', label: 'Banner 1920×600',   platform: 'Web',       width: 1920, height: 600  },
-  { id: 'web-thumb',  label: 'Thumbnail 1280×720',platform: 'Web',       width: 1280, height: 720  },
-  // Print
-  { id: 'print-a4',   label: 'A4 2480×3508',      platform: 'Print',     width: 2480, height: 3508 },
-  { id: 'print-flyer',label: 'Flyer 1275×1650',   platform: 'Print',     width: 1275, height: 1650 },
+  // ── Instagram ─────────────────────────────────────────────────────────
+  { id: 'ig-post',      label: 'Instagram Post',     platform: 'Instagram', width: 1080, height: 1080 },
+  { id: 'ig-story',     label: 'Instagram Story / Reel', platform: 'Instagram', width: 1080, height: 1920 },
+  { id: 'ig-portrait',  label: 'Instagram Portrait', platform: 'Instagram', width: 1080, height: 1380 },
+
+  // ── Facebook ──────────────────────────────────────────────────────────
+  { id: 'fb-cover',     label: 'Cover Profile',      platform: 'Facebook',  width: 851,  height: 315  },
+
+  // ── LinkedIn ──────────────────────────────────────────────────────────
+  { id: 'li-portrait',  label: 'Post Portrait',      platform: 'LinkedIn',  width: 1080, height: 1350 },
+  { id: 'li-landscape', label: 'Post Landscape',     platform: 'LinkedIn',  width: 1200, height: 627  },
+  { id: 'li-square',    label: 'Post Square',        platform: 'LinkedIn',  width: 1200, height: 1200 },
+  { id: 'li-company',   label: 'Cover Company Page', platform: 'LinkedIn',  width: 1128, height: 191  },
+  { id: 'li-profile',   label: 'Cover Profile',      platform: 'LinkedIn',  width: 1584, height: 396  },
+
+  // ── X / Twitter ───────────────────────────────────────────────────────
+  { id: 'x-square',     label: 'Post Square',        platform: 'X',         width: 1080, height: 1080 },
+  { id: 'x-cover',      label: 'Cover Profile',      platform: 'X',         width: 1500, height: 500  },
+  { id: 'x-landscape',  label: 'Post Landscape',     platform: 'X',         width: 1200, height: 675  },
+
+  // ── Web ───────────────────────────────────────────────────────────────
+  { id: 'web-narrow',   label: 'Narrow Banner',      platform: 'Web',       width: 300,  height: 600  },
+  { id: 'web-meetup',   label: 'Cover Photo for Meetup or Builder Center', platform: 'Web', width: 1200, height: 675 },
+
+  // ── Print ─────────────────────────────────────────────────────────────
+  { id: 'print-us-land',label: 'US Letter (8.5″ × 11″) Landscape', platform: 'Print', width: 3300, height: 2550 },
+  { id: 'print-cert',   label: 'Certificate',        platform: 'Print',     width: 3300, height: 2550 },
+  { id: 'print-us-port',label: 'US Letter (8.5″ × 11″)', platform: 'Print', width: 2550, height: 3300 },
 ]
 
 export const PLATFORMS: Platform[] = ['Instagram', 'Facebook', 'LinkedIn', 'X', 'Web', 'Print']

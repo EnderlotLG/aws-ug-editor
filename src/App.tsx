@@ -34,7 +34,7 @@ export default function App() {
               boxShadow: '0 0 0 1px rgba(255,255,255,0.07), 0 24px 80px rgba(0,0,0,0.6)',
             }}
           >
-            <TemplateCanvas ref={canvasRef} />
+            <TemplateCanvas ref={canvasRef} {...{}} />
           </div>
         </main>
       </div>
