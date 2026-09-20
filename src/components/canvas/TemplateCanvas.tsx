@@ -12,7 +12,7 @@ const MAX_PREVIEW = 520
 function GridBg({
   width, height, cell, dark,
 }: { width: number; height: number; cell: number; dark: boolean }) {
-  const stroke = dark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.08)'
+  const stroke = dark ? 'rgba(255,255,255,0.18)' : 'rgba(0,0,0,0.14)'
   const pid = 'ug-grid'
   return (
     <svg
