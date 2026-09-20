@@ -47,7 +47,9 @@ export interface BlockDef {
 
 // ─── Design pattern ───────────────────────────────────────────────────────────
 
-export type DesignPattern = 'staircase' | 'checkerboard' | 'corner-L' | 'diagonal' | 'scattered'
+export type DesignPattern =
+  | 'staircase' | 'checkerboard' | 'corner-L' | 'diagonal' | 'scattered'
+  | 'cross' | 'frame' | 'zigzag' | 'split' | 'border'
 
 // ─── Global editor state ─────────────────────────────────────────────────────
 

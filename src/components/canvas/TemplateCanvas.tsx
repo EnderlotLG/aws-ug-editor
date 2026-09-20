@@ -35,28 +35,6 @@ function GridBg({
   )
 }
 
-// ── Chip icon (inline SVG, no external resource) ──────────────────────────────
-function ChipIcon({ size, color }: { size: number; color: string }) {
-  return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" aria-hidden="true">
-      <rect x="7" y="7" width="10" height="10" rx="1.5"
-        stroke={color} strokeWidth="1.8" />
-      {[9, 12, 15].map(v => (
-        <g key={v}>
-          <line x1={v} y1={7}  x2={v} y2={4}  stroke={color} strokeWidth="1.8" strokeLinecap="round" />
-          <line x1={v} y1={17} x2={v} y2={20} stroke={color} strokeWidth="1.8" strokeLinecap="round" />
-        </g>
-      ))}
-      {[9, 12, 15].map(v => (
-        <g key={v}>
-          <line x1={7}  y1={v} x2={4}  y2={v} stroke={color} strokeWidth="1.8" strokeLinecap="round" />
-          <line x1={17} y1={v} x2={20} y2={v} stroke={color} strokeWidth="1.8" strokeLinecap="round" />
-        </g>
-      ))}
-    </svg>
-  )
-}
-
 // ── Main canvas component ─────────────────────────────────────────────────────
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type
 export const TemplateCanvas = forwardRef<HTMLDivElement, object>(
@@ -70,38 +48,33 @@ export const TemplateCanvas = forwardRef<HTMLDivElement, object>(
     const preset            = getPreset(activePresetId)
     const { width, height } = preset
 
-    // CSS scale factor for the preview wrapper
     const scale = useMemo(
       () => Math.min(1, MAX_PREVIEW / Math.max(width, height)),
       [width, height],
     )
 
-    // Grid cell = 1/8 of the shorter side, min 40px
     const cell = useMemo(
       () => Math.max(40, Math.round(Math.min(width, height) / 8)),
       [width, height],
     )
 
-    const blocks     = useMemo(() => getBlocks(width, height, designPattern), [width, height, designPattern])
-    const accentHex  = getAccentHex(accentColor)
-    const bg         = THEME_BACKGROUNDS[theme]
-    const txt        = THEME_TEXT[theme]
-    const isDark     = theme === 'dark'
+    const blocks    = useMemo(() => getBlocks(width, height, designPattern), [width, height, designPattern])
+    const accentHex = getAccentHex(accentColor)
+    const bg        = THEME_BACKGROUNDS[theme]
+    const txt       = THEME_TEXT[theme]
+    const isDark    = theme === 'dark'
 
     const layerOn = (id: string) => layers.find(l => l.id === id)?.isVisible ?? true
 
-    // Responsive sizes relative to canvas width
-    const logoW     = Math.round(width * 0.13)   // AWS logo width
-    const fsHead    = Math.round(Math.min(width, height) * 0.072)
-    const fsSub     = Math.round(Math.min(width, height) * 0.034)
-    const brandH    = Math.round(height * 0.095)  // brandmark bar height
-    const chipSize  = Math.round(brandH * 0.55)
+    const logoW   = Math.round(width * 0.13)
+    const fsHead  = Math.round(Math.min(width, height) * 0.072)
+    const fsSub   = Math.round(Math.min(width, height) * 0.034)
+    const brandH  = Math.round(height * 0.095)
+    // Community logo square = brandH × brandH
+    const ugLogoSz = brandH
 
     return (
-      /* Outer wrapper – sized to the scaled dimensions */
       <div style={{ width: width * scale, height: height * scale, flexShrink: 0 }}>
-
-        {/* Inner div – full resolution, CSS-scaled */}
         <div
           ref={ref}
           id="template-canvas"
@@ -129,7 +102,7 @@ export const TemplateCanvas = forwardRef<HTMLDivElement, object>(
             }} />
           ))}
 
-          {/* ── AWS logo – top-left, small and clean ──────────────────────── */}
+          {/* ── AWS logo – top-left ────────────────────────────────────────── */}
           {layerOn('BRANDMARK') && (
             <div style={{
               position: 'absolute',
@@ -172,7 +145,7 @@ export const TemplateCanvas = forwardRef<HTMLDivElement, object>(
             </div>
           )}
 
-          {/* ── Brandmark bar – bottom full width ─────────────────────────── */}
+          {/* ── Brandmark bar ─────────────────────────────────────────────── */}
           {layerOn('BRANDMARK') && (
             <div style={{
               position:        'absolute',
@@ -183,41 +156,54 @@ export const TemplateCanvas = forwardRef<HTMLDivElement, object>(
               backgroundColor: accentHex,
               display:         'flex',
               alignItems:      'center',
-              paddingLeft:     Math.round(width * 0.04),
-              paddingRight:    Math.round(width * 0.04),
-              gap:             Math.round(width * 0.02),
-              overflow:        'hidden',
             }}>
-              {/* Chip icon */}
-              <ChipIcon size={chipSize} color={bg} />
+              {/* Community logo – square on the left */}
+              <div style={{
+                width:           ugLogoSz,
+                height:          ugLogoSz,
+                flexShrink:      0,
+                backgroundColor: isDark ? 'rgba(0,0,0,0.25)' : 'rgba(255,255,255,0.25)',
+                display:         'flex',
+                alignItems:      'center',
+                justifyContent:  'center',
+                overflow:        'hidden',
+              }}>
+                {customLogoBase64 ? (
+                  <img
+                    src={customLogoBase64}
+                    alt="Community logo"
+                    style={{ width: '100%', height: '100%', objectFit: 'contain' }}
+                  />
+                ) : (
+                  /* Placeholder hint when no logo uploaded */
+                  <span style={{
+                    fontSize:  Math.round(ugLogoSz * 0.22),
+                    color:     isDark ? 'rgba(255,255,255,0.35)' : 'rgba(0,0,0,0.3)',
+                    textAlign: 'center',
+                    lineHeight: 1.2,
+                    padding:   4,
+                    fontWeight: 600,
+                  }}>
+                    UG Logo
+                  </span>
+                )}
+              </div>
 
-              {/* UG name – takes remaining space, truncated */}
+              {/* UG name text */}
               <span style={{
-                color:     bg,
-                fontSize:  Math.round(brandH * 0.32),
-                fontWeight: 700,
-                lineHeight: 1.25,
-                overflow:  'hidden',
-                textOverflow: 'ellipsis',
-                whiteSpace: 'nowrap',
-                flex: 1,
+                flex:          1,
+                paddingLeft:   Math.round(width * 0.03),
+                paddingRight:  Math.round(width * 0.03),
+                color:         bg,
+                fontSize:      Math.round(brandH * 0.34),
+                fontWeight:    700,
+                lineHeight:    1.25,
+                overflow:      'hidden',
+                textOverflow:  'ellipsis',
+                whiteSpace:    'nowrap',
               }}>
                 {ugName}
               </span>
-
-              {/* Custom community logo – only shown when uploaded */}
-              {customLogoBase64 && (
-                <img
-                  src={customLogoBase64}
-                  alt="Community logo"
-                  style={{
-                    width:     Math.round(brandH * 0.85),
-                    height:    Math.round(brandH * 0.85),
-                    objectFit: 'contain',
-                    flexShrink: 0,
-                  }}
-                />
-              )}
             </div>
           )}
         </div>
