@@ -53,6 +53,11 @@ export type DesignPattern =
   | 'staircase' | 'checkerboard' | 'corner-L' | 'diagonal' | 'scattered'
   | 'cross' | 'frame' | 'zigzag' | 'split' | 'border'
 
+// ─── Grid size ────────────────────────────────────────────────────────────────
+
+/** Divisor to compute cell size: min(w,h) / gridDivisor */
+export type GridSize = 6 | 8 | 10 | 12
+
 // ─── Global editor state ─────────────────────────────────────────────────────
 
 export interface EditorState {
@@ -65,6 +70,7 @@ export interface EditorState {
   ugName: string
   customLogoBase64: string | null
   designPattern: DesignPattern
+  gridSize: GridSize
 
   // Actions
   setPreset: (id: string) => void
@@ -76,5 +82,6 @@ export interface EditorState {
   setUgName: (v: string) => void
   setCustomLogo: (base64: string | null) => void
   setDesignPattern: (pattern: DesignPattern) => void
+  setGridSize: (size: GridSize) => void
   randomizePattern: () => void
 }

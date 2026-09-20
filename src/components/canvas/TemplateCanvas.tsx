@@ -10,27 +10,41 @@ const MAX_PREVIEW = 520
 
 // ── Inline SVG grid background ────────────────────────────────────────────────
 function GridBg({
-  width, height, cell, dark,
-}: { width: number; height: number; cell: number; dark: boolean }) {
-  const stroke = dark ? 'rgba(255,255,255,0.35)' : 'rgba(0,0,0,0.25)'
-  const pid = 'ug-grid'
+  width, height, cell, dark, instanceId,
+}: { width: number; height: number; cell: number; dark: boolean; instanceId: string }) {
+  const stroke = dark ? 'rgba(255,255,255,0.35)' : 'rgba(0,0,0,0.28)'
+  // Unique pattern id per instance to avoid SVG id collisions in the same DOM
+  const pid = `ug-grid-${instanceId}`
   return (
     <svg
-      width={width} height={height}
-      style={{ position: 'absolute', inset: 0, pointerEvents: 'none' }}
+      width={width}
+      height={height}
+      style={{ position: 'absolute', inset: 0, pointerEvents: 'none', zIndex: 0 }}
       aria-hidden="true"
     >
       <defs>
-        <pattern id={pid} width={cell} height={cell} patternUnits="userSpaceOnUse">
-          {/* vertical line on right edge of cell */}
-          <line x1={cell} y1={0} x2={cell} y2={cell}
-            stroke={stroke} strokeWidth={1} shapeRendering="crispEdges" />
-          {/* horizontal line on bottom edge of cell */}
-          <line x1={0} y1={cell} x2={cell} y2={cell}
-            stroke={stroke} strokeWidth={1} shapeRendering="crispEdges" />
+        <pattern
+          id={pid}
+          x={0} y={0}
+          width={cell}
+          height={cell}
+          patternUnits="userSpaceOnUse"
+        >
+          {/* right border of cell */}
+          <line
+            x1={cell - 0.5} y1={0}
+            x2={cell - 0.5} y2={cell}
+            stroke={stroke} strokeWidth={1}
+          />
+          {/* bottom border of cell */}
+          <line
+            x1={0}    y1={cell - 0.5}
+            x2={cell} y2={cell - 0.5}
+            stroke={stroke} strokeWidth={1}
+          />
         </pattern>
       </defs>
-      <rect width={width} height={height} fill={`url(#${pid})`} />
+      <rect width="100%" height="100%" fill={`url(#${pid})`} />
     </svg>
   )
 }
@@ -42,7 +56,7 @@ export const TemplateCanvas = forwardRef<HTMLDivElement, object>(
     const {
       activePresetId, theme, accentColor,
       layers, headline, speakerName, ugName,
-      customLogoBase64, designPattern,
+      customLogoBase64, designPattern, gridSize,
     } = useEditorStore()
 
     const preset            = getPreset(activePresetId)
@@ -53,9 +67,10 @@ export const TemplateCanvas = forwardRef<HTMLDivElement, object>(
       [width, height],
     )
 
+    // Grid cell = min(w,h) / gridSize — randomizable from store
     const cell = useMemo(
-      () => Math.max(40, Math.round(Math.min(width, height) / 8)),
-      [width, height],
+      () => Math.max(32, Math.round(Math.min(width, height) / gridSize)),
+      [width, height, gridSize],
     )
 
     const blocks    = useMemo(() => getBlocks(width, height, designPattern), [width, height, designPattern])
@@ -89,7 +104,7 @@ export const TemplateCanvas = forwardRef<HTMLDivElement, object>(
           }}
         >
           {/* ── Grid ──────────────────────────────────────────────────────── */}
-          <GridBg width={width} height={height} cell={cell} dark={isDark} />
+          <GridBg width={width} height={height} cell={cell} dark={isDark} instanceId={activePresetId} />
 
           {/* ── Accent blocks ─────────────────────────────────────────────── */}
           {layerOn('BOXES') && blocks.map(b => (
