@@ -12,7 +12,7 @@ const MAX_PREVIEW = 520
 function GridBg({
   width, height, cell, dark,
 }: { width: number; height: number; cell: number; dark: boolean }) {
-  const stroke = dark ? 'rgba(255,255,255,0.18)' : 'rgba(0,0,0,0.14)'
+  const stroke = dark ? 'rgba(255,255,255,0.35)' : 'rgba(0,0,0,0.25)'
   const pid = 'ug-grid'
   return (
     <svg
@@ -24,10 +24,10 @@ function GridBg({
         <pattern id={pid} width={cell} height={cell} patternUnits="userSpaceOnUse">
           {/* vertical line on right edge of cell */}
           <line x1={cell} y1={0} x2={cell} y2={cell}
-            stroke={stroke} strokeWidth={1} />
+            stroke={stroke} strokeWidth={1} shapeRendering="crispEdges" />
           {/* horizontal line on bottom edge of cell */}
           <line x1={0} y1={cell} x2={cell} y2={cell}
-            stroke={stroke} strokeWidth={1} />
+            stroke={stroke} strokeWidth={1} shapeRendering="crispEdges" />
         </pattern>
       </defs>
       <rect width={width} height={height} fill={`url(#${pid})`} />
