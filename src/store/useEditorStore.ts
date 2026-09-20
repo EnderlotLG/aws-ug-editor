@@ -1,5 +1,5 @@
 import { create } from 'zustand'
-import type { EditorState, Theme, AccentColor, LayerId } from '../types'
+import type { EditorState, LayerId } from '../types'
 
 const DEFAULT_LAYERS = [
   { id: 'BOXES'    as LayerId, label: 'Boxes',      isVisible: true },

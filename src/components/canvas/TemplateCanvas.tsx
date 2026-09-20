@@ -1,5 +1,4 @@
 import { forwardRef, useMemo } from 'react'
-import { forwardRef, useMemo } from 'react'
 import { useEditorStore } from '../../store/useEditorStore'
 import { getPreset } from '../../config/presets'
 import { getBlocks } from '../../config/blocks'
@@ -9,7 +8,8 @@ import { AwsSmileLogo } from './AwsSmileLogo'
 
 const MAX_PREVIEW_SIZE = 540
 
-export const TemplateCanvas = forwardRef<HTMLDivElement, Record<string, never>>(
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
+export const TemplateCanvas = forwardRef<HTMLDivElement, object>(
   function TemplateCanvas(_props, ref) {
     const {
       activePresetId,
