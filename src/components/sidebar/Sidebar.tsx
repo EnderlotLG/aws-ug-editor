@@ -1,0 +1,45 @@
+import { ThemeSelector }        from './ThemeSelector'
+import { AccentColorSelector }  from './AccentColorSelector'
+import { LogoUploader }         from './LogoUploader'
+import { LayersPanel }          from './LayersPanel'
+import { TextFields }           from './TextFields'
+
+/** Thin divider between sidebar sections */
+function Divider() {
+  return <hr className="border-slate-800" />
+}
+
+export function Sidebar() {
+  return (
+    <aside
+      className="flex flex-col gap-5 overflow-y-auto bg-slate-950 border-r border-slate-800 px-4 py-5"
+      style={{ width: 260, minWidth: 260 }}
+      aria-label="Editor controls"
+    >
+      {/* Logo / branding header */}
+      <div className="flex items-center gap-2 pb-1">
+        <span className="text-xs font-bold tracking-widest text-slate-400 uppercase">
+          UG Editor
+        </span>
+        <span className="ml-auto rounded bg-amber-500/20 px-1.5 py-0.5 text-xs font-bold text-amber-400">
+          AWS
+        </span>
+      </div>
+
+      <Divider />
+      <ThemeSelector />
+
+      <Divider />
+      <AccentColorSelector />
+
+      <Divider />
+      <LogoUploader />
+
+      <Divider />
+      <LayersPanel />
+
+      <Divider />
+      <TextFields />
+    </aside>
+  )
+}
